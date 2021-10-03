@@ -219,7 +219,7 @@ static SDL_Surface *surface_p=NULL;
 extern BeebWin *mainWin;
 
 
-inline static void PutPixel(SDL_Surface *surface_p, int x, int y, Uint8 pixel)
+inline static void PutPixel(SDL_Surface *surface_p, int x, int y, Uint32 pixel)
 {
         SDL_Rect clipping;
         Uint8 *buf_p;
@@ -242,14 +242,35 @@ inline static void PutPixel(SDL_Surface *surface_p, int x, int y, Uint8 pixel)
 
         /* Draw the pixel:
          */
-        buf_p = (Uint8*) surface_p->pixels + y * surface_p->pitch + x;
-        *buf_p = pixel;
+        buf_p = (Uint8*) surface_p->pixels + y * surface_p->pitch + x * surface_p->format->BytesPerPixel;
+        switch (surface_p->format->BytesPerPixel) {
+        case 1:
+            *buf_p = pixel;
+            break;
+        case 2:
+            {
+                Uint16 *tmp = (Uint16 *) buf_p;
+                *tmp = pixel;
+            }
+            break;
+        case 3:
+            break;
+        case 4:
+            {
+                Uint32 *tmp = (Uint32 *) buf_p;
+                *tmp = pixel;
+            }
+            break;
+        default:
+            break;
+        }
 }
 
 inline static Uint32 GetPixel(SDL_Surface *surface_p, int x, int y)
 {
         if (surface_p == NULL) return 0;
-
+        Uint8 *srcp = (Uint8*) surface_p->pixels + y * surface_p->pitch + x * surface_p->format->BytesPerPixel;
+        
         /* Clip to bitmap:
          */
         if (x<0 || x>=surface_p->w || y<0 || y>=surface_p->h)
@@ -259,14 +280,12 @@ inline static Uint32 GetPixel(SDL_Surface *surface_p, int x, int y)
 
         case 1:
                 {
-                        Uint8 *bufp;
-                        bufp = (Uint8*) surface_p->pixels + y * surface_p->pitch + x;
-                        return (unsigned int) *bufp;
+                        return (unsigned int) *srcp;
                 }
         case 2:
                 {
                         Uint16 *bufp;
-                        bufp = (Uint16*) surface_p->pixels + y * surface_p->pitch + x;
+                        bufp = (Uint16*) srcp;
                         return (unsigned int) *bufp;
                 }
 
@@ -277,7 +296,7 @@ inline static Uint32 GetPixel(SDL_Surface *surface_p, int x, int y)
         case 4:
                 {
                         Uint32 *bufp;
-                        bufp = (Uint32*) surface_p->pixels + y * surface_p->pitch + x;
+                        bufp = (Uint32*) srcp;
                         return (unsigned int) *bufp;
                 }
         default:
