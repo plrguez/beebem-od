@@ -21,7 +21,7 @@ CC = $(TOOLCHAIN)/bin/mipsel-linux-gcc
 
 #CFLAGS = $(INCLUDES) $(SDINCLUDES) -Wall -g -DBEEB_DOTIME $(RESOURCES) -DGP2X=1 -DSOUNDSUPPORT
 # -DSOUNDSUPPORT
-CFLAGS = $(INCLUDES) -Wall -g -DBEEB_DOTIME -DSOUNDSUPPORT $(RESOURCES) -G0 -O3 -march=mips32 -mtune=mips32r2 
+CFLAGS = $(INCLUDES) -Wall -g -DBEEB_DOTIME -DSOUNDSUPPORT -DOPENDINGUX $(RESOURCES) -G0 -O3 -march=mips32 -mtune=mips32r2 
 # -DEG_DEBUG
 
 #RESOURCES=-DROMS_DIR=\"./romimg/\" -DRC_DIR=\"./\" -DOS_DIR=\"./romimg/\" -DDEFAULT_DISC=\"S:80:/mnt/sd/beebem/Zalaga.ssd\"  -DVERSION=\"0.6\"

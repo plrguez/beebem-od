@@ -470,7 +470,7 @@ int InitializeSDL(int,char*[])
                 return 0;
 	}		
 	
-#ifdef GP2X
+#if defined(GP2X) || defined(OPENDINGUX)
         SDL_ShowCursor(SDL_DISABLE);
 #endif
 
