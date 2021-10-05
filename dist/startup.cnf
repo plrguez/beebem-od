@@ -51,7 +51,7 @@ SET SKIN=YES
 #SET SKIN=NO
 
 # Set stick handler to old one:
-SET STICK=OLD
+SET STICK=SMART
 
 
 # Video emulation (both Graphics modes and Teletext):
@@ -66,7 +66,9 @@ SET ORIENTATION=NORMAL
 # Video emulation, TOP = scanlines 0-240, BOTTOM = scanlines 16-255,
 # CENTER (or CENTRE) = scanlines 8-248, SCALED = Beeb's 256 scanlines are
 # scaled to the GP2x's 240 scanlines (deletes every 16th scanline):
-SET VSCALE=SCALED
+# IPU: scanlines 0-255 using OpenDingux IPU Scaling
+SET VSCALE=IPU
+#SET VSCALE=SCALED
 #SET VSCALE=TOP
 #SET VSCALE=BOTTOM
 #SET VSCALE=CENTER
