@@ -7,7 +7,9 @@ SDL_CONFIG = $(TOOLCHAIN)/mipsel-gcw0-linux-uclibc/sysroot/usr/bin/sdl-config
 
 #INCLUDES = -I. -I/usr/local/open2x/include/c++ `sdl-open2x-config --cflags`
 #INCLUDES = -I. -I/opt/open2x/gcc-4.1.1-glibc-2.3.6/arm-open2x-linux/include/c++/4.1.1 `arm-open2x-linux-sdl-config --cflags`
-INCLUDES = -I. `$(SDL_CONFIG) --cflags`
+SDL_CFLAGS  = $(shell $(SDL_CONFIG) --cflags)
+SDL_LIBS    = $(shell $(SDL_CONFIG) --libs)
+INCLUDES = -I. $(SDL_CFLAGS)
 
 
 #DEPINCLUDES = $(INCLUDES) $(SDINCLUDES) -I/usr/local/open2x/include/linux -I/usr/local/open2x/include/c++
@@ -29,7 +31,7 @@ RESOURCES= -DVERSION=\"0.6\"
 
 #LINKFLAGS = -lstdc++ `sdl-open2x-config --libs` -lm -s --static
 #LINKFLAGS = -lstdc++ `arm-open2x-linux-sdl-config --libs` -lm -s --static
-LINKFLAGS = -lstdc++ `$(SDL_CONFIG) --libs`
+LINKFLAGS = -lstdc++ $(SDL_LIBS)
 LIBS =
 LIBFILES = gui/libeg.a
 
