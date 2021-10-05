@@ -127,7 +127,7 @@ inline void doHorizLine(unsigned long Col, int y, int sx, int width)
 
         /* Quit if rendering outside frame buffer:
          */
-        if (y<0 || y>=240 || sx<0 || sx>=320 || width<=0) return;
+        if (y<0 || y>=frame_buffer_p->h || sx<0 || sx>=320 || width<=0) return;
 
 
         if (sx+width>=320) {
@@ -135,15 +135,15 @@ inline void doHorizLine(unsigned long Col, int y, int sx, int width)
                 if (width<=0) return;
         }
 
-	if (onscreen_keyboard && y >= 105)
+	if (onscreen_keyboard && y >= (frame_buffer_p->h-135))
 		return;
 
 	if (screen_orientation) {
-		y=239-y;
+		y=frame_buffer_p->h-1-y;
 		sx=(320-sx)-width;
 	}
 
-	if (y<0 || y>=240 || sx<0 || sx>=320 || width<=0) {printf("TELEXT PAINTING OUT OF BOUNDS y=%d sx=%d width=%d\n", y, sx, width); return;}
+	if (y<0 || y>=frame_buffer_p->h || sx<0 || sx>=320 || width<=0) {printf("TELEXT PAINTING OUT OF BOUNDS y=%d sx=%d width=%d\n", y, sx, width); return;}
 
 	p = getScreenBufRow_p(y);
         memset(p + sx, Col, width);

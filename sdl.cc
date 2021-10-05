@@ -425,6 +425,40 @@ void fill_audio(void *udata, Uint8 *stream, int len)
  */
 void at_exit(void);
 
+#ifdef OPENDINGUX
+int SetVideoMode(bool menu=false)
+{
+        int width, height;
+        width = 320;
+        if (!menu && config.settings.vscale == IPU)
+            height = 256;
+        else
+            height = 240;
+
+        /* Setup frame buffer:
+         */
+        if (rgb_surface)
+            SDL_FreeSurface(rgb_surface);
+        if ( (rgb_surface=SDL_SetVideoMode(width, height, 16, SDL_HWSURFACE | SDL_TRIPLEBUF)) == NULL ) {
+                fprintf(stderr, "Unable to set video mode: %s\n"
+                 , SDL_GetError());
+                return 0;
+        }
+
+        if (!frame_buffer_p) {
+                frame_buffer_p = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 256, 8, 0, 0, 0, 0);
+                if (frame_buffer_p == NULL)
+                {
+                        fprintf(stderr, "Unable to create surface: %s\n"
+                         , SDL_GetError());
+                        return 0;
+                }
+        }
+
+        return 1;
+}
+#endif
+
 int InitializeSDL(int,char*[])
 {
 	int flags, ret;
@@ -449,7 +483,11 @@ int InitializeSDL(int,char*[])
 
         /* Setup frame buffer:
          */
-        flags = SDL_SWSURFACE | SDL_HWPALETTE;
+#ifdef OPENDINGUX
+        if (!SetVideoMode())
+            return 0;
+#else
+        flags = SDL_HWSURFACE | SDL_HWPALETTE;
 #ifndef GP2X
         //if ( (frame_buffer_p=SDL_SetVideoMode(640, 480, 8, flags)) == NULL ) {
         if ( (rgb_surface=SDL_SetVideoMode(320, 240, 16, flags)) == NULL ) {
@@ -469,6 +507,7 @@ int InitializeSDL(int,char*[])
                  , SDL_GetError());
                 return 0;
 	}		
+#endif
 	
 #if defined(GP2X) || defined(OPENDINGUX)
         SDL_ShowCursor(SDL_DISABLE);

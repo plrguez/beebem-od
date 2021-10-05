@@ -108,6 +108,9 @@ typedef struct {
 	EG_Widget	*rbt_scaling_centered;
 	EG_Widget	*rbt_scaling_bottom;
 	EG_Widget	*rbt_scaling_scaled;
+#ifdef OPENDINGUX
+	EG_Widget	*rbt_scaling_ipu;
+#endif
 
 	EG_Widget	*tck_flipped;
 	EG_Widget	*tck_cursor;
@@ -404,6 +407,9 @@ EG_BOOL BeebEmPages_Create(SDL_Surface *frame_buffer_p)
 	SDL_FreeSurface(tmp2_p);
 	}
 
+#ifdef OPENDINGUX
+        InitSurfacePalette(frame_buffer_p);
+#endif        
 
 
 	/* Configure window skin:
@@ -597,6 +603,10 @@ void BeebEmPages_ShowMenu(void)
 	/* Freeze sound:
 	 */
 	SDL_PauseAudio(1);
+        
+#ifdef OPENDINGUX
+        SetVideoMode(true);
+#endif
 
 	/* Store frame buffer's palette and set to menus palette:
 	 */
@@ -631,6 +641,9 @@ void BeebEmPages_ShowMenu(void)
 	/* Restore frame buffer's palette:
 	 */
 //	SDL_SetPalette(surface_p, SDL_LOGPAL|SDL_PHYSPAL, frame_buffer_colors, 0, 256);
+#ifdef OPENDINGUX
+        SetVideoMode();
+#endif
 
 	/* Unfreeze sound:
 	 */
@@ -1319,6 +1332,11 @@ static void BeebEmPages_ShowGameOptions1Page(BeebEm_Pages *gui_p)
 	case SCALED:
 		EG_RadioGroup_Select(gui_p->game_options_1.rbt_scaling_scaled);
 		break;
+#ifdef OPENDINGUX
+	case IPU:
+		EG_RadioGroup_Select(gui_p->game_options_1.rbt_scaling_ipu);
+		break;
+#endif
 	default:
 		EG_RadioGroup_Select(gui_p->game_options_1.rbt_scaling_scaled);
 		break;
@@ -1405,6 +1423,13 @@ static void GameOptions1_Callback_Scaling_Scaled(EG_Widget*, void*)
 {
 	ActionSetOption("VSCALE", "SCALED");
 }
+
+#ifdef OPENDINGUX
+static void GameOptions1_Callback_Scaling_IPU(EG_Widget*, void*)
+{
+	ActionSetOption("VSCALE", "IPU");
+}
+#endif
 
 static void GameOptions1_Callback_Protection_0_RW(EG_Widget*, void*)
 {
@@ -1584,28 +1609,52 @@ static EG_BOOL GameOptions1_Make(SDL_Surface *frame_buffer_p, BeebEm_Pages *gui_
 	gui_p->game_options_1.rgp_scaling = EG_RadioGroup_Create("game_options_1_scaling_rgp");
 
 	gui_p->game_options_1.rbt_scaling_top = EG_ToggleButton_Create(
+#ifdef OPENDINGUX
+         "game_options_1_scaling_top", c, "Top", C_1_5(r3, 1, 3) );
+#else
 	 "game_options_1_scaling_top", c, "Top", C_1_4(r3, 1, 3) );
+#endif
 	(void) EG_Button_SetMyCallback_OnClick(gui_p->game_options_1.rbt_scaling_top, GameOptions1_Callback_Scaling_Top, NULL);
 	EG_RadioGroup_AddButton(gui_p->game_options_1.rgp_scaling
 	 , gui_p->game_options_1.rbt_scaling_top);
 
 	gui_p->game_options_1.rbt_scaling_centered = EG_ToggleButton_Create(
+#ifdef OPENDINGUX
+	 "game_options_1_scaling_centered", c, "Centered", C_2_5(r3, 1, 3) );
+#else
 	 "game_options_1_scaling_centered", c, "Centered", C_2_4(r3, 1, 3) );
+#endif
 	(void) EG_Button_SetMyCallback_OnClick(gui_p->game_options_1.rbt_scaling_centered, GameOptions1_Callback_Scaling_Centered, NULL);
 	EG_RadioGroup_AddButton(gui_p->game_options_1.rgp_scaling
 	 , gui_p->game_options_1.rbt_scaling_centered);
 
 	gui_p->game_options_1.rbt_scaling_bottom = EG_ToggleButton_Create(
+#ifdef OPENDINGUX
+	 "game_options_1_scaling_bottom", c, "Bottom", C_3_5(r3, 1, 3) );
+#else
 	 "game_options_1_scaling_bottom", c, "Bottom", C_3_4(r3, 1, 3) );
+#endif
 	(void) EG_Button_SetMyCallback_OnClick(gui_p->game_options_1.rbt_scaling_bottom, GameOptions1_Callback_Scaling_Bottom, NULL);
 	EG_RadioGroup_AddButton(gui_p->game_options_1.rgp_scaling
 	 , gui_p->game_options_1.rbt_scaling_bottom);
 
 	gui_p->game_options_1.rbt_scaling_scaled = EG_ToggleButton_Create(
+#ifdef OPENDINGUX
+	 "game_options_1_scaling_scaled", c, "Scaled", C_4_5(r3, 1, 3) );
+#else
 	 "game_options_1_scaling_scaled", c, "Scaled", C_4_4(r3, 1, 3) );
+#endif
 	(void) EG_Button_SetMyCallback_OnClick(gui_p->game_options_1.rbt_scaling_scaled, GameOptions1_Callback_Scaling_Scaled, NULL);
 	EG_RadioGroup_AddButton(gui_p->game_options_1.rgp_scaling
 	 , gui_p->game_options_1.rbt_scaling_scaled);
+        
+#ifdef OPENDINGUX
+	gui_p->game_options_1.rbt_scaling_ipu = EG_ToggleButton_Create(
+	 "game_options_1_scaling_ipu", c, "IPU", C_5_5(r3, 1, 3) );
+	(void) EG_Button_SetMyCallback_OnClick(gui_p->game_options_1.rbt_scaling_ipu, GameOptions1_Callback_Scaling_IPU, NULL);
+	EG_RadioGroup_AddButton(gui_p->game_options_1.rgp_scaling
+	 , gui_p->game_options_1.rbt_scaling_ipu);
+#endif
 
 	EG_Window_AddWidget(gui_p->game_options_1.win, gui_p->game_options_1.rgp_scaling);
 
@@ -1759,6 +1808,12 @@ EG_Widget_SetSmartFocusPeerLeft(gui_p->game_options_1.rbt_scaling_scaled	, gui_p
 EG_Widget_SetSmartFocusPeerUp(gui_p->game_options_1.rbt_scaling_scaled	, gui_p->game_options_1.rbt_speed_240);
 EG_Widget_SetSmartFocusPeerDown(gui_p->game_options_1.rbt_scaling_scaled	, gui_p->game_options_1.tck_flipped);
 
+#if OPENDINGUX
+EG_Widget_SetSmartFocusPeerRight(gui_p->game_options_1.rbt_scaling_scaled	, gui_p->game_options_1.rbt_scaling_ipu);
+EG_Widget_SetSmartFocusPeerLeft(gui_p->game_options_1.rbt_scaling_ipu	, gui_p->game_options_1.rbt_scaling_scaled);
+EG_Widget_SetSmartFocusPeerUp(gui_p->game_options_1.rbt_scaling_ipu	, gui_p->game_options_1.rbt_speed_240);
+EG_Widget_SetSmartFocusPeerDown(gui_p->game_options_1.rbt_scaling_ipu	, gui_p->game_options_1.tck_flipped);
+#endif
 
 
 EG_Widget_SetSmartFocusPeerUp(gui_p->game_options_1.tck_flipped			, gui_p->game_options_1.rbt_scaling_top);

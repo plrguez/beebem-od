@@ -458,6 +458,11 @@ int BBC_Keyboard_SaveConfig(void)
 	case SCALED:
 		fprintf(output, "SET VSCALE=SCALED\n");
 		break;
+#ifdef OPENDINGUX
+	case IPU:
+		fprintf(output, "SET VSCALE=IPU\n");
+		break;
+#endif
 	default:
 		break;
 	}

@@ -554,9 +554,18 @@ void ActionSetOption(char *name_p, char *value_p)
                 } else if ( !strcasecmp (value_p, "scaled")) {
                         printf("Setting screen centering to: scaled.\n");
                         SetVideoScaled();
+#ifdef OPENDINGUX
+                } else if ( !strcasecmp (value_p, "ipu")) {
+                        printf("Setting screen centering to: IPU.\n");
+                        SetVideoIPU();
+                } else {
+                        printf("Invalid vscale, please enter 'centered', 'centred', 'top', 'bottom', 'scaled' or 'IPU'.\n");
+                }
+#else
                 } else {
                         printf("Invalid vscale, please enter 'centered', 'centred', 'top', 'bottom' or 'scaled'.\n");
                 }
+#endif
         }
 
         /* Set orientation:

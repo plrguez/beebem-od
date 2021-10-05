@@ -357,7 +357,11 @@ void VirtualKeyboard_RepaintTapeLED(int state)
 	if ( ! mainWin->ScreenIsReversed() ) {
 		source_p = ! state ? tape_off_p : tape_on_p;
 		d.x = 30;
+#ifdef OPENDINGUX
+                d.y = surface_p->h - 23;
+#else
 		d.y = 217;
+#endif
 	} else {
 		source_p = ! state ? flipped_tape_off_p : flipped_tape_on_p;
 		d.x = 273;
@@ -381,7 +385,11 @@ void VirtualKeyboard_RepaintCapsLED(int state)
 	if ( ! mainWin->ScreenIsReversed() ) {
 		source_p = ! state ? caps_off_p : caps_on_p;
 		d.x = 30+18;
+#ifdef OPENDINGUX
+                d.y = surface_p->h - 23;
+#else
 		d.y = 217;
+#endif
 	} else {
 		source_p = ! state ? flipped_caps_off_p : flipped_caps_on_p;
 		d.x = 273-18;
@@ -405,7 +413,11 @@ void VirtualKeyboard_RepaintShiftLED(int state)
 	if ( ! mainWin->ScreenIsReversed() ) {
 		source_p = ! state ? shift_off_p : shift_on_p;
 		d.x = 30+36;
+#ifdef OPENDINGUX
+                d.y = surface_p->h - 23;
+#else
 		d.y = 217;
+#endif
 	} else {
 		source_p = ! state ? flipped_shift_off_p : flipped_shift_on_p;
 		d.x = 273-36;
@@ -647,6 +659,10 @@ static int LoadKeyboardImageAndSetPalette(SDL_Surface *surface_p)
 		return 0;
 	}
 	printf("<-\n\n");
+        
+#ifdef OPENDINGUX
+        InitSurfacePalette(surface_p);
+#endif        
 
 	/* Make a new copy of the virtual keyboard in screen format and dump the original:
 	 */

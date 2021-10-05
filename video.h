@@ -76,6 +76,9 @@ void SetVideoCentered(void);
 void SetVideoTop(void);
 void SetVideoBottom(void);
 void SetVideoScaled(void);
+#ifdef OPENDINGUX
+void SetVideoIPU(void);
+#endif
 //<-
 
 void VideoDoScanLine(void);
@@ -99,6 +102,9 @@ void SetVHoldOffset(unsigned int vhold);
 void Video_SetVHoldNormal(void);
 void Video_SetVHoldDown(void);
 
+#ifdef OPENDINGUX
+void InitSurfacePalette(SDL_Surface *source_surface);
+#endif
 void rgb_blit();
 void update_rgb_lookup(SDL_Surface *source_surface);
 

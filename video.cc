@@ -62,6 +62,9 @@
 #include <iostream>
 #include <stdlib.h>
 #include <SDL.h>
+#ifdef OPENDINGUX
+#include <map>
+#endif
 
 #include "6502core.h"
 #include "beebmem.h"
@@ -97,6 +100,9 @@
  */
 extern SDL_Surface *frame_buffer_p;
 extern SDL_Surface *rgb_surface;
+#ifdef OPENDINGUX
+std::map<Uint8, Uint32> rgb_palette;
+#endif
 #define LOCK(s)   {if(SDL_MUSTLOCK(s))(void)SDL_LockSurface(s);}
 #define UNLOCK(s) {if(SDL_MUSTLOCK(s))(void)SDL_UnlockSurface(s);}
 //<----
@@ -319,10 +325,38 @@ void VideoAddLEDs(void);
 //--}
 //<+
 
+#ifdef OPENDINGUX
+void InitSurfacePalette(SDL_Surface *source_surface)
+{  
+        for (int i=0; i < source_surface->format->palette->ncolors; i++)
+            rgb_palette[SDL_MapRGB(source_surface->format,
+                                    source_surface->format->palette->colors[i].r,
+                                    source_surface->format->palette->colors[i].g,
+                                    source_surface->format->palette->colors[i].b)] 
+                    = SDL_MapRGB(rgb_surface->format,
+                                    source_surface->format->palette->colors[i].r,
+                                    source_surface->format->palette->colors[i].g,
+                                    source_surface->format->palette->colors[i].b);
+}
+#endif
+
 void rgb_blit()
 	{
+#ifdef OPENDINGUX
+        Uint8 *srcp = (Uint8 *) frame_buffer_p->pixels;
+        Uint16 *dstp = (Uint16 *) rgb_surface->pixels;
+
+        for (int y = 0; y <  rgb_surface->h; y++)
+            for (int x = 0; x <  rgb_surface->w; x++) {
+                *dstp = rgb_palette[*srcp];
+                dstp++;
+                srcp++;
+            }
+        SDL_Flip(rgb_surface);
+#else
 	SDL_BlitSurface(frame_buffer_p, NULL, rgb_surface, NULL);
 	SDL_UpdateRect(rgb_surface, 0, 0, 0, 0);
+#endif
 	}
 
 // A 'Chunky Mode' get pixel routine:
@@ -1709,6 +1743,30 @@ unsigned char scanlines_center[256] = {
         0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 };
 
+
+#ifdef OPENDINGUX
+unsigned char scanlines_full[256] = {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+        0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+        0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
+        0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
+        0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,
+        0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f,
+        0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f,
+        0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f,
+        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f,
+        0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f,
+        0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf,
+        0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5, 0xb6, 0xb7, 0xb8, 0xb9, 0xba, 0xbb, 0xbc, 0xbd, 0xbe, 0xbf,
+        0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf,
+        0xd0, 0xd1, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8, 0xd9, 0xda, 0xdb, 0xdc, 0xdd, 0xde, 0xdf,
+        0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef,
+        0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff
+};
+
+bool ipu_scaling=false;
+#endif
+
 unsigned char *scanline_mapping_p = scanlines_scaled;
 
 //++
@@ -1742,6 +1800,14 @@ void SetVideoScaled(void)
 	config.settings.vscale = SCALED;
 	scanline_mapping_p = scanlines_scaled;
 }
+
+#ifdef OPENDINGUX
+void SetVideoIPU(void)
+{
+	config.settings.vscale = IPU;
+	scanline_mapping_p = scanlines_full;
+}
+#endif
 //<-
 
 
@@ -1811,8 +1877,13 @@ static inline int IsFlippedMode(void)
 
 static inline unsigned char* GetTeletextScanlinePtr(int line)
 {
+#ifdef OPENDINGUX
+        int height = (config.settings.vscale == IPU ? 256 : 240);
+#else
+        int height = 240;
+#endif
 		// Flipped mode
-		if ( IsFlippedMode() ) line = 239 - line;
+		if ( IsFlippedMode() ) line = height - 1 - line;
 		return  (unsigned char*) (frame_buffer_p->pixels) + (line) * frame_buffer_p->pitch;
 }
 
@@ -1825,7 +1896,7 @@ static void AddTeletextHardwareCursor(int scanline)
 
 	if (config.settings.disable_cursor) return;
 
-	if (mainWin->OnScreenKeyboardShown() && (CursorY+14) >= 105) return;
+	if (mainWin->OnScreenKeyboardShown() && (CursorY+14) >= (frame_buffer_p->h-135)) return;
 
 	if (CursorO) {
 		if (CursorX < 0 || CursorX + CursorW >= 320) return;
@@ -1863,11 +1934,16 @@ static inline void DrawLine(long Col, int y, int sx, int width)
 	static unsigned char *old_p = NULL;
 
 	unsigned char *p;
+#ifdef OPENDINGUX
+        int height = (config.settings.vscale == IPU ? 256 : 240);
+#else
+        int height = 240;
+#endif
 
-	if ( y<0 || y>= 240) return;
+	if ( y<0 || y>= height) return;
 	if (sx<0 || sx>=320) return;
 	//if (mainWin->OnScreenKeyboardShown() && y >= 105) return;
-	if (on_screen_keyboard && y>= 105) return;
+	if (on_screen_keyboard && y>= (frame_buffer_p->h-135)) return;
 
 
 	if ( old_y == y) {
@@ -1929,6 +2005,11 @@ static inline unsigned char* GetScanlinePtr(int line)
 {
 	unsigned char *p;
 	unsigned int scanline;
+#ifdef OPENDINGUX
+        int height = (config.settings.vscale == IPU ? 256 : 240);
+#else
+        int height = 240;
+#endif
 
 	/* Do not render outside of normal BBC scanlines.
 	 * [TODO] Make GAPSIZE (blanking gap size) variable.
@@ -1942,13 +2023,13 @@ static inline unsigned char* GetScanlinePtr(int line)
 	/* Determine if scanline is scaled:
  	 */
 	scanline = scanline_mapping_p[line & 0xff];
-	if (scanline==0xff || ( mainWin->OnScreenKeyboardShown() && scanline >= 105) ) return NULL;
+	if ((config.settings.vscale != IPU && scanline==0xff) || ( mainWin->OnScreenKeyboardShown() && scanline >= (frame_buffer_p->h-135)) ) return NULL;
 
 //	scanline = line;
 
 	/* Flip it for flipped mode:
  	 */
-	if ( IsFlippedMode() ) scanline = abs( 239 - ((long)scanline) );
+	if ( IsFlippedMode() ) scanline = abs( (height-1) - ((long)scanline) );
 
 	/* Calc start of scanline rendering area:
  	 */
@@ -2177,7 +2258,7 @@ static void AddMC6845HardwareCursor(int scanline)
 
 	if (config.settings.disable_cursor) return;
 
-	if (mainWin->OnScreenKeyboardShown() && (scanline-GAPSIZE) >= 105) return;
+	if (mainWin->OnScreenKeyboardShown() && (scanline-GAPSIZE) >= (frame_buffer_p->h-135)) return;
 
 	if (CursorO && scanline>=CursorY && scanline<=CursorY+CursorH) {
 		p = GetScanlinePtr(scanline);
@@ -2753,10 +2834,10 @@ void VideoDoScanLine(void) {
 
 			for (l=0; l<7; l++) {
 				DrawLine(0, l, 0, 320);
-				if (! mainWin->OnScreenKeyboardShown()) DrawLine(0, 239-l, 0, 320);
+				if (! mainWin->OnScreenKeyboardShown()) DrawLine(0, (frame_buffer_p->h-1)-l, 0, 320);
 		}
 		// 7 lines at top, 8 lines at bottom. This is the extra one for the bottom (above loop 0-6)
-		if (! mainWin->OnScreenKeyboardShown()) DrawLine(0, 239-7, 0, 320);
+		if (! mainWin->OnScreenKeyboardShown()) DrawLine(0, (frame_buffer_p->h-1)-7, 0, 320);
 	}
 
     if ((VideoState.CharLine!=-1) && (VideoState.CharLine<CRTC_VerticalDisplayed)) {

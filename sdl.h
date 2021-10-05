@@ -8,6 +8,9 @@ extern SDL_Surface *frame_buffer_p;
 
 
 int InitializeSDL(int,char*[]);
+#ifdef OPENDINGUX
+int SetVideoMode(bool menu=false);
+#endif
 
 int InitializeSDLSound(int soundfrequency);
 void FreeSDLSound(void);

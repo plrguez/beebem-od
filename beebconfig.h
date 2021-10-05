@@ -30,7 +30,11 @@ typedef struct {
 //	char	xx[1024*5];
 } BeebConfig_Files;
 
+#ifdef OPENDINGUX
+enum Scaling {CENTER, TOP, BOTTOM, SCALED, IPU};
+#else
 enum Scaling {CENTER, TOP, BOTTOM, SCALED};
+#endif
 enum Orientation {NORMAL, REVERSED};
 enum Protection8271 {RO_8271, RW_8271};
 enum Stick{CRITICAL, MULTI, HORIZONTAL, VERTICAL};

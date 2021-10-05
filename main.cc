@@ -360,7 +360,11 @@ int main(int argc,char *argv[]) {
 	/* 'Initialize global configuration` (Sounds KuNu-Labour doesn't it!?):
 	 */
 	Config_Initialize(argv[0]);
+        
 
+#ifdef OPENDINGUX
+        SetVideoMode();
+#endif
 
 	/* Initialize Economy GUI API:
 	 */
