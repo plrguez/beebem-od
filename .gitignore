@@ -2,6 +2,8 @@ final/*
 *.o
 beebem
 dist/beebem
-dist/beebem.opk
+beebem_od
+beebem_lepus
+dist/beebem*.opk
 gui/libeg.a
 
