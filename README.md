@@ -23,18 +23,20 @@ If your toolchain is not located at default directories you can pass to make com
 `make TARGET=lepus TOOLCHAIN=/opt/your-opendingux-toolchain -f Makefile_RG350`
 
 You'll need a toolchain to build from source.
+
 [http://od.abstraction.se/opendingux/toolchain/](http://od.abstraction.se/opendingux/toolchain/)
 
 ## Create Distributable
-After building the '`beebem`' binary, you then need to package for your openDingux device as an OPK file
+After building the '`beebem`' binary, you then need to package for your OpenDingux device as an OPK file
+
 Current make will create the OPK file for target device in the `dist` directory:
 * `beebem_od.opk` for RG350 like devices.
 * `beebem_lepus.opk` for Lepus devices..
 
 ## Installation
-To install package onto the RG350...
+To install package onto the handheld...
 
-* Copy beebem_od.opk to `/media/sdcard/APPS/` folder
+* Depending on your device copy beebem_od.opk or beebem_lepus.opk to `/media/sdcard/APPS/` folder
 
 * Running beebem at least once will create the ~/.beebem/roms if not already present on your device.
 * Put ROMs with _exactly_ these names into ~/.beebem/roms
