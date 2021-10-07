@@ -2838,6 +2838,14 @@ void VideoDoScanLine(void) {
 		}
 		// 7 lines at top, 8 lines at bottom. This is the extra one for the bottom (above loop 0-6)
 		if (! mainWin->OnScreenKeyboardShown()) DrawLine(0, (frame_buffer_p->h-1)-7, 0, 320);
+#ifdef OPENDINGUX
+                // With IPU scaler we are using all 256 scanlines, so we have 16 extra lines to clear at bottom
+                if (! mainWin->OnScreenKeyboardShown() && config.settings.vscale == IPU) {
+                    for (l=0; l<16; l++) {
+                        DrawLine(0, (frame_buffer_p->h-1)-8-l, 0, 320);
+                    }
+                }
+#endif
 	}
 
     if ((VideoState.CharLine!=-1) && (VideoState.CharLine<CRTC_VerticalDisplayed)) {
