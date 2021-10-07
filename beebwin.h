@@ -29,6 +29,11 @@
 #include "port.h"
 #include "sdl.h"
 
+#ifdef OPENDINGUX
+#include "beebconfig.h"
+extern BeebConfig config;
+#endif
+
 extern SDL_Surface *frame_buffer_p;
 
 char* getScreenBufRow_p(unsigned int);
@@ -124,7 +129,11 @@ inline unsigned int GetTicks(void)
 inline void doHorizLine(unsigned long Col, int y, int sx, int width)
 {
         char *p;
-
+#ifdef OPENDINGUX
+        int height = (config.settings.vscale == IPU) ? 256 : 240;
+#else
+        int height = surface_p->h;
+#endif
         /* Quit if rendering outside frame buffer:
          */
         if (y<0 || y>=frame_buffer_p->h || sx<0 || sx>=320 || width<=0) return;
@@ -135,15 +144,15 @@ inline void doHorizLine(unsigned long Col, int y, int sx, int width)
                 if (width<=0) return;
         }
 
-	if (onscreen_keyboard && y >= (frame_buffer_p->h-135))
+	if (onscreen_keyboard && y >= (height-135))
 		return;
 
 	if (screen_orientation) {
-		y=frame_buffer_p->h-1-y;
+		y=height-1-y;
 		sx=(320-sx)-width;
 	}
 
-	if (y<0 || y>=frame_buffer_p->h || sx<0 || sx>=320 || width<=0) {printf("TELEXT PAINTING OUT OF BOUNDS y=%d sx=%d width=%d\n", y, sx, width); return;}
+	if (y<0 || y>=height || sx<0 || sx>=320 || width<=0) {printf("TELEXT PAINTING OUT OF BOUNDS y=%d sx=%d width=%d\n", y, sx, width); return;}
 
 	p = getScreenBufRow_p(y);
         memset(p + sx, Col, width);

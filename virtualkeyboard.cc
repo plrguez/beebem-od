@@ -349,6 +349,9 @@ void VirtualKeyboard_RepaintTapeLED(int state)
 {
 	SDL_Surface *source_p;
 	SDL_Rect d;
+#ifdef OPENDINGUX
+        int height = (config.settings.vscale == IPU) ? 256 : 240;
+#endif
 
 	/* If keyboard is not shown, do nothing.
 	 */
@@ -358,7 +361,7 @@ void VirtualKeyboard_RepaintTapeLED(int state)
 		source_p = ! state ? tape_off_p : tape_on_p;
 		d.x = 30;
 #ifdef OPENDINGUX
-                d.y = surface_p->h - 23;
+                d.y = height - 23;
 #else
 		d.y = 217;
 #endif
@@ -377,6 +380,9 @@ void VirtualKeyboard_RepaintCapsLED(int state)
 {
 	SDL_Surface *source_p;
 	SDL_Rect d;
+#ifdef OPENDINGUX
+        int height = (config.settings.vscale == IPU) ? 256 : 240;
+#endif
 
 	/* If keyboard is not shown, do nothing.
 	 */
@@ -386,7 +392,7 @@ void VirtualKeyboard_RepaintCapsLED(int state)
 		source_p = ! state ? caps_off_p : caps_on_p;
 		d.x = 30+18;
 #ifdef OPENDINGUX
-                d.y = surface_p->h - 23;
+                d.y = height - 23;
 #else
 		d.y = 217;
 #endif
@@ -405,6 +411,9 @@ void VirtualKeyboard_RepaintShiftLED(int state)
 {
 	SDL_Surface *source_p;
 	SDL_Rect d;
+#ifdef OPENDINGUX
+        int height = (config.settings.vscale == IPU) ? 256 : 240;
+#endif
 
 	/* If keyboard is not shown, do nothing.
 	 */
@@ -414,7 +423,7 @@ void VirtualKeyboard_RepaintShiftLED(int state)
 		source_p = ! state ? shift_off_p : shift_on_p;
 		d.x = 30+36;
 #ifdef OPENDINGUX
-                d.y = surface_p->h - 23;
+                d.y = height - 23;
 #else
 		d.y = 217;
 #endif
@@ -438,6 +447,11 @@ static void RenderKey(unsigned int key_index)
 {
 	SDL_Surface *source_p;
 	SDL_Rect s, d;
+#ifdef OPENDINGUX
+        int height = (config.settings.vscale == IPU) ? 256 : 240;
+#else
+        int height = surface_p->h;
+#endif
 
 	if (key_index >= KEYCOUNT) return;
 
@@ -459,7 +473,7 @@ static void RenderKey(unsigned int key_index)
 		s.y = keyboard[key_index].y;
 
 		d.x = s.x;
-		d.y = surface_p->h - keyboard_p->h + s.y;
+		d.y = height - keyboard_p->h + s.y;
 
 		switch (keyboard[key_index].state) {
 
@@ -911,11 +925,16 @@ void VirtualKeyboard_Render()
         SDL_Rect d = {0,0,0,0};
 
 	int i;
+#ifdef OPENDINGUX
+        int height = (config.settings.vscale == IPU) ? 256 : 240;
+#else
+        int height = 240;
+#endif
 
 	/* Render the whole virtual keyboard:
 	 */
         if (! mainWin->ScreenIsReversed() ) {
-                d.y = surface_p->h - keyboard_p->h;
+                d.y = height - keyboard_p->h;
                 SDL_BlitSurface(keyboard_p, NULL, surface_p, &d);
                 SDL_UpdateRect(surface_p, 0, d.y, surface_p->w, keyboard_p->h);
 	} else {

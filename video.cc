@@ -1891,12 +1891,18 @@ static inline unsigned char* GetTeletextScanlinePtr(int line)
 static void AddTeletextHardwareCursor(int scanline)
 {
 	unsigned char *p;
+#ifdef OPENDINGUX
+        int height = (config.settings.vscale == IPU) ? 256 : 240;
+#else
+        int height = frame_buffer_p->h;
+#endif
+
 
 //	printf("***%d\n", scanline);
 
 	if (config.settings.disable_cursor) return;
 
-	if (mainWin->OnScreenKeyboardShown() && (CursorY+14) >= (frame_buffer_p->h-135)) return;
+	if (mainWin->OnScreenKeyboardShown() && (CursorY+14) >= (height-135)) return;
 
 	if (CursorO) {
 		if (CursorX < 0 || CursorX + CursorW >= 320) return;
@@ -1937,13 +1943,13 @@ static inline void DrawLine(long Col, int y, int sx, int width)
 #ifdef OPENDINGUX
         int height = (config.settings.vscale == IPU ? 256 : 240);
 #else
-        int height = 240;
+        int height = frame_buffer_p->h;
 #endif
 
 	if ( y<0 || y>= height) return;
 	if (sx<0 || sx>=320) return;
 	//if (mainWin->OnScreenKeyboardShown() && y >= 105) return;
-	if (on_screen_keyboard && y>= (frame_buffer_p->h-135)) return;
+	if (on_screen_keyboard && y>= (height-135)) return;
 
 
 	if ( old_y == y) {
@@ -2008,7 +2014,7 @@ static inline unsigned char* GetScanlinePtr(int line)
 #ifdef OPENDINGUX
         int height = (config.settings.vscale == IPU ? 256 : 240);
 #else
-        int height = 240;
+        int height = frame_buffer_p->h;
 #endif
 
 	/* Do not render outside of normal BBC scanlines.
@@ -2023,7 +2029,7 @@ static inline unsigned char* GetScanlinePtr(int line)
 	/* Determine if scanline is scaled:
  	 */
 	scanline = scanline_mapping_p[line & 0xff];
-	if ((config.settings.vscale != IPU && scanline==0xff) || ( mainWin->OnScreenKeyboardShown() && scanline >= (frame_buffer_p->h-135)) ) return NULL;
+	if ((config.settings.vscale != IPU && scanline==0xff) || ( mainWin->OnScreenKeyboardShown() && scanline >= (height-135)) ) return NULL;
 
 //	scanline = line;
 
@@ -2255,10 +2261,16 @@ static void ClearScanline(int scanline)
 static void AddMC6845HardwareCursor(int scanline)
 {
 	unsigned char *p;
+#ifdef OPENDINGUX
+        int height = (config.settings.vscale == IPU) ? 256 : 240;
+#else
+        int height = frame_buffer_p->h;
+#endif
+
 
 	if (config.settings.disable_cursor) return;
 
-	if (mainWin->OnScreenKeyboardShown() && (scanline-GAPSIZE) >= (frame_buffer_p->h-135)) return;
+	if (mainWin->OnScreenKeyboardShown() && (scanline-GAPSIZE) >= (height-135)) return;
 
 	if (CursorO && scanline>=CursorY && scanline<=CursorY+CursorH) {
 		p = GetScanlinePtr(scanline);
