@@ -432,6 +432,7 @@ void at_exit(void);
 int SetVideoMode(bool menu=false)
 {
         int width, height;
+        char crefresh_rate[3];
         width = 320;
         if (!menu && config.settings.vscale == IPU)
             height = 256;
@@ -473,6 +474,10 @@ int SetVideoMode(bool menu=false)
                         return 0;
                 }
         }
+        
+        // Set refresh rate to 50Hz
+        snprintf(crefresh_rate, 3, "%2d", 50);
+        setenv("SDL_VIDEO_REFRESHRATE", &crefresh_rate[0], 1);
 
         return 1;
 }
