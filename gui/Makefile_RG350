@@ -6,6 +6,8 @@ else
 TOOLCHAIN = /opt/gcw0-toolchain/usr
 endif
 
+#DEBUG     = 1
+
 CC         = $(TOOLCHAIN)/bin/mipsel-linux-gcc
 AR         = $(TOOLCHAIN)/bin/mipsel-linux-ar
 
@@ -17,11 +19,16 @@ SDL_LIBS   = $(shell $(SDL_CONFIG) --libs)
 
 INCLUDES   = -I. $(SDL_CFLAGS) -I..
 
-CFLAGS = $(INCLUDES) -Wall -g -DBEEB_DOTIME $(RESOURCES) -DGP2X=1 -DSOUNDSUPPORT -DOPENDINGUX -G0 -O3 -DEG_SLIDEBAR_ASTROFFONLY=1
+CFLAGS = $(INCLUDES) -Wall -DBEEB_DOTIME $(RESOURCES) -DGP2X=1 -DSOUNDSUPPORT -DOPENDINGUX -G0 -DEG_SLIDEBAR_ASTROFFONLY=1
 ifeq ($(TARGET),lepus)
 CFLAGS +=  -march=mips32 -mtune=mips32
 else
 CFLAGS +=  -march=mips32r2 -mtune=mips32r2 
+endif
+ifdef DEBUG
+CFLAGS += -O0 -g3
+else
+CFLAGS += -g -O3
 endif
 
 LINKFLAGS = -lstdc++ $(SDL_LIBS) --static -s
