@@ -99,6 +99,9 @@
 /* Handle SDL surface locking:
  */
 extern SDL_Surface *frame_buffer_p;
+#ifdef OPENDINGUX
+extern SDL_Surface *mix_surface;
+#endif
 extern SDL_Surface *rgb_surface;
 #ifdef OPENDINGUX
 std::map<Uint8, Uint32> rgb_palette;
@@ -344,14 +347,19 @@ void rgb_blit()
 	{
 #ifdef OPENDINGUX
         Uint8 *srcp = (Uint8 *) frame_buffer_p->pixels;
-        Uint16 *dstp = (Uint16 *) rgb_surface->pixels;
+        Uint16 *dstp = (Uint16 *) mix_surface->pixels;
+        SDL_Rect mix = {0,0,320,(config.settings.vscale == IPU) ? 256 : 240};
 
-        for (int y = 0; y <  rgb_surface->h; y++)
+        for (int y = 0; y <  rgb_surface->h; y++) {
             for (int x = 0; x <  rgb_surface->w; x++) {
                 *dstp = rgb_palette[*srcp];
                 dstp++;
                 srcp++;
             }
+        }
+        if (mainWin->OnScreenKeyboardShown())
+            VirtualKeyboard_Render();
+        SDL_BlitSurface(mix_surface, &mix, rgb_surface, NULL);
         SDL_Flip(rgb_surface);
 #else
 	SDL_BlitSurface(frame_buffer_p, NULL, rgb_surface, NULL);
@@ -1902,7 +1910,9 @@ static void AddTeletextHardwareCursor(int scanline)
 
 	if (config.settings.disable_cursor) return;
 
+#ifndef OPENDINGUX
 	if (mainWin->OnScreenKeyboardShown() && (CursorY+14) >= (height-135)) return;
+#endif
 
 	if (CursorO) {
 		if (CursorX < 0 || CursorX + CursorW >= 320) return;
@@ -1949,7 +1959,9 @@ static inline void DrawLine(long Col, int y, int sx, int width)
 	if ( y<0 || y>= height) return;
 	if (sx<0 || sx>=320) return;
 	//if (mainWin->OnScreenKeyboardShown() && y >= 105) return;
+#ifndef OPENDINGUX
 	if (on_screen_keyboard && y>= (height-135)) return;
+#endif
 
 
 	if ( old_y == y) {
@@ -2029,7 +2041,11 @@ static inline unsigned char* GetScanlinePtr(int line)
 	/* Determine if scanline is scaled:
  	 */
 	scanline = scanline_mapping_p[line & 0xff];
-	if ((config.settings.vscale != IPU && scanline==0xff) || ( mainWin->OnScreenKeyboardShown() && scanline >= (height-135)) ) return NULL;
+#ifdef OPENDINGUX
+	if (config.settings.vscale != IPU && scanline==0xff) return NULL;
+#else
+        if (scanline==0xff) || ( mainWin->OnScreenKeyboardShown() && scanline >= (height-135)) ) return NULL;
+#endif
 
 //	scanline = line;
 
@@ -2270,7 +2286,9 @@ static void AddMC6845HardwareCursor(int scanline)
 
 	if (config.settings.disable_cursor) return;
 
+#ifndef OPENDINGUX
 	if (mainWin->OnScreenKeyboardShown() && (scanline-GAPSIZE) >= (height-135)) return;
+#endif
 
 	if (CursorO && scanline>=CursorY && scanline<=CursorY+CursorH) {
 		p = GetScanlinePtr(scanline);
@@ -2846,13 +2864,19 @@ void VideoDoScanLine(void) {
 
 			for (l=0; l<7; l++) {
 				DrawLine(0, l, 0, 320);
+#ifdef OPENDINGUX
+                                DrawLine(0, (frame_buffer_p->h-1)-l, 0, 320);
+#else
 				if (! mainWin->OnScreenKeyboardShown()) DrawLine(0, (frame_buffer_p->h-1)-l, 0, 320);
+#endif
 		}
 		// 7 lines at top, 8 lines at bottom. This is the extra one for the bottom (above loop 0-6)
+#ifndef OPENDINGUX
 		if (! mainWin->OnScreenKeyboardShown()) DrawLine(0, (frame_buffer_p->h-1)-7, 0, 320);
-#ifdef OPENDINGUX
+#else
+                DrawLine(0, (frame_buffer_p->h-1)-7, 0, 320);
                 // With IPU scaler we are using all 256 scanlines, so we have 16 extra lines to clear at bottom
-                if (! mainWin->OnScreenKeyboardShown() && config.settings.vscale == IPU) {
+                if (config.settings.vscale == IPU) {
                     for (l=0; l<16; l++) {
                         DrawLine(0, (frame_buffer_p->h-1)-8-l, 0, 320);
                     }

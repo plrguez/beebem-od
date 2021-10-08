@@ -35,6 +35,10 @@ extern BeebConfig config;
 #endif
 
 extern SDL_Surface *frame_buffer_p;
+#ifdef OPENDINGUX
+extern SDL_Surface *mix_surface;
+extern SDL_Surface *rgb_surface;
+#endif
 
 char* getScreenBufRow_p(unsigned int);
 

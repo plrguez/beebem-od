@@ -586,8 +586,13 @@ static SDL_Surface* CreateNewVirtualKeyboardSurface(SDL_Surface *surface_p, unsi
 	 * to remove the palette colors line:
 	 */
         if ( (new_surface_p=SDL_CreateRGBSurface(
+#ifdef OPENDINGUX
+	   SDL_HWSURFACE | SDL_SRCALPHA, KEYBOARD_WIDTH, KEYBOARD_HEIGHT-1, 16, 0
+	   , 0, 0, ( SDL_BYTEORDER == SDL_BIG_ENDIAN ? 0x000000ff : 0xff000000 )) ) == NULL) {
+#else
 	   SDL_HWSURFACE, KEYBOARD_WIDTH, KEYBOARD_HEIGHT-1, 8, 0
 	   , 0, 0, 0) ) == NULL) {
+#endif
                 fprintf(stderr, "Unable to create SDL Surface for XPM data"
                  ": %s\n", SDL_GetError());
                 return 0;
@@ -604,6 +609,9 @@ static SDL_Surface* CreateNewVirtualKeyboardSurface(SDL_Surface *surface_p, unsi
 	 */
 	s.x = 0; s.y = (KEYBOARD_HEIGHT * index)+1; s.w = KEYBOARD_WIDTH; s.h = KEYBOARD_HEIGHT - 1;
 	SDL_BlitSurface(surface_p, &s, new_surface2_p, NULL);
+#ifdef OPENDINGUX
+        SDL_SetAlpha( new_surface2_p, SDL_SRCALPHA, 200 );
+#endif
 
 	return new_surface2_p;
 }
@@ -665,7 +673,11 @@ static int LoadKeyboardImageAndSetPalette(SDL_Surface *surface_p)
 	 */
 	printf("-> Setting palette.\n");
 	if (tmp2_p->format->palette != NULL) {
+#ifdef OPENDINGUX
+		SDL_SetPalette(frame_buffer_p, SDL_LOGPAL|SDL_PHYSPAL, tmp2_p->format->palette->colors, 0, tmp2_p->format->palette->ncolors);
+#else
 		SDL_SetPalette(surface_p, SDL_LOGPAL|SDL_PHYSPAL, tmp2_p->format->palette->colors, 0, tmp2_p->format->palette->ncolors);
+#endif
 	} else {
 		printf("Virtual keyboard graphics are not 8bit."
 		 " Please resave as an 8bit bmp.\n");
@@ -675,7 +687,7 @@ static int LoadKeyboardImageAndSetPalette(SDL_Surface *surface_p)
 	printf("<-\n\n");
         
 #ifdef OPENDINGUX
-        InitSurfacePalette(surface_p);
+        InitSurfacePalette(frame_buffer_p);
 #endif        
 
 	/* Make a new copy of the virtual keyboard in screen format and dump the original:

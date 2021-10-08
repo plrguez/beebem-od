@@ -391,7 +391,11 @@ int main(int argc,char *argv[]) {
 
 	/* Initialize the virtual keyboard:
 	 */
+#ifdef OPENDINGUX
+	if (! VirtualKeyboard_Initialize(mix_surface) ) {
+#else
 	if (! VirtualKeyboard_Initialize(frame_buffer_p) ) {
+#endif
 		fprintf(stderr, "Couldn't initialize the virtual keyboard.\n");
 		EXIT(1);
 	}
@@ -496,7 +500,9 @@ int main(int argc,char *argv[]) {
 							Button_Reset();
 							AllButtonsUp();
 							mainWin->ShowOnScreenKeyboard();
+#ifndef OPENDINGUX
 							VirtualKeyboard_Render();
+#endif
 						}
 						break;
 					}
@@ -580,12 +586,17 @@ int main(int argc,char *argv[]) {
 						mainWin->ShiftBooted = false;
 						BeebKeyUp(0, 0);
 
+#ifdef OPENDINGUX
+                                                if (mainWin->OnScreenKeyboardShown())
+                                                        mainWin->HideOnScreenKeyboard();
+#endif
 						BeebEmPages_ShowMenu();
                                                 cls();
-
+#ifndef OPENDINGUX
                                                 if (mainWin->OnScreenKeyboardShown())
                                                         mainWin->HideOnScreenKeyboard();
                                                         //VirtualKeyboard_Render();
+#endif
 
 						break;
 					}

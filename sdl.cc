@@ -50,6 +50,9 @@ static void GP2x_InitializeSoundBuffer(void);
 /* Frame buffer:
  */
 SDL_Surface *frame_buffer_p=NULL;
+#ifdef OPENDINGUX
+SDL_Surface *mix_surface=NULL;
+#endif
 SDL_Surface *rgb_surface=NULL;
 
 /* Sound support:
@@ -437,12 +440,28 @@ int SetVideoMode(bool menu=false)
 
         /* Setup frame buffer:
          */
-        if (rgb_surface)
+        if (rgb_surface) {
             SDL_FreeSurface(rgb_surface);
+            rgb_surface=NULL;
+        }
         if ( (rgb_surface=SDL_SetVideoMode(width, height, 16, SDL_HWSURFACE | SDL_TRIPLEBUF)) == NULL ) {
                 fprintf(stderr, "Unable to set video mode: %s\n"
                  , SDL_GetError());
                 return 0;
+        }
+        
+        if (!mix_surface) {
+                mix_surface = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 320, 256, 16, 
+                                                   rgb_surface->format->Rmask, 
+                                                   rgb_surface->format->Gmask, 
+                                                   rgb_surface->format->Bmask, 
+                                                   rgb_surface->format->Amask);
+                if (mix_surface == NULL)
+                {
+                        fprintf(stderr, "Unable to create mix surface: %s\n"
+                         , SDL_GetError());
+                        return 0;
+                }
         }
 
         if (!frame_buffer_p) {
